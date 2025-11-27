@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FiMail, FiLock } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 // --- InputField Component ---
 // A reusable input field component with icon support
@@ -126,6 +127,8 @@ const PasswordField = ({
 
 // --- Login Component ---
 const Login = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   // State for form data
   const [formData, setFormData] = useState({
     email: "",
@@ -181,111 +184,94 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormMessage(null);
 
     if (validateForm()) {
-      // Simulate a successful form submission
-      console.log("Form data submitted:", formData);
-      setFormMessage({
-        type: "success",
-        text: "Login successful! Redirecting...",
-      });
+      setIsLoading(true);
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Login failed");
+        }
+
+        // Success: Store token and redirect
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        setFormMessage({ type: "success", text: "Login successful! Redirecting..." });
+        
+        setTimeout(() => {
+            navigate("/"); // Redirect to Home
+        }, 1500);
+
+      } catch (error: any) {
+        setFormMessage({
+          type: "error",
+          text: error.message || "Invalid email or password.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
     } else {
-      // Validation failed
-      setFormMessage({
-        type: "error",
-        text: "Please correct the errors in the form.",
-      });
-      console.log("Form validation failed:", errors);
+      setFormMessage({ type: "error", text: "Please correct the errors in the form." });
     }
   };
 
   return (
     <div className="font-inter bg-gray-100 min-h-screen flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-500 mt-2">
-            Sign in to your account to continue.
-          </p>
+          <p className="text-gray-500 mt-2">Sign in to your account to continue.</p>
         </div>
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit} noValidate>
-          {/* Email */}
-          <InputField
-            id="email"
-            label="Email Address"
-            type="email"
-            placeholder="you@sm.imamu.edu.sa"
-            icon={FiMail}
-            value={formData.email}
-            onChange={handleChange}
-            error={errors.email}
-          />
+          <InputField id="email" label="Email Address" type="email" placeholder="you@sm.imamu.edu.sa" icon={FiMail} value={formData.email} onChange={handleChange} error={errors.email} />
+          <PasswordField id="password" label="Password" placeholder="Your password" icon={FiLock} value={formData.password} onChange={handleChange} error={errors.password} />
 
-          {/* Password */}
-          <PasswordField
-            id="password"
-            label="Password"
-            placeholder="Your password"
-            icon={FiLock}
-            value={formData.password}
-            onChange={handleChange}
-            error={errors.password}
-          />
-
-          {/* Forgot Password Link */}
           <div className="text-right -mt-2 mb-4">
-            <a
-              href="#"
-              className="text-sm font-medium text-blue-600 hover:text-blue-500"
-            >
-              Forgot Password?
-            </a>
+            <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-500">Forgot Password?</a>
           </div>
 
-          {/* Form-level message */}
           {formMessage && (
-            <div
-              className={`mb-4 p-3 rounded-md text-sm ${
-                formMessage.type === "success"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              }`}
-            >
+            <div className={`mb-4 p-3 rounded-md text-sm ${formMessage.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
               {formMessage.text}
             </div>
           )}
 
-          {/* Submit Button */}
           <div className="mt-6">
             <button
               type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150"
+              disabled={isLoading}
+              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ${
+                isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+              }`}
             >
-              Sign In
+              {isLoading ? "Signing In..." : "Sign In"}
             </button>
           </div>
         </form>
 
-        {/* Footer Link */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{" "}
-            <a
-              href="/signup"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              Sign Up
-            </a>
+            <a href="/signup" className="font-medium text-blue-600 hover:text-blue-500">Sign Up</a>
           </p>
         </div>
       </div>
     </div>
+    
   );
 };
 

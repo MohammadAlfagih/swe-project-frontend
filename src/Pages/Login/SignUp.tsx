@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FiUser, FiMail, FiLock } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 // --- InputField Component ---
 // A reusable input field component with icon support
@@ -126,6 +127,8 @@ const PasswordField = ({
 
 // --- SignUp Component ---
 const SignUp = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   // State for form data
   const [formData, setFormData] = useState({
     fullName: "",
@@ -195,31 +198,54 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormMessage(null);
 
     if (validateForm()) {
-      // Simulate a successful form submission
-      console.log("Form data submitted:", formData);
-      setFormMessage({
-        type: "success",
-        text: "Account created successfully! Redirecting...",
-      });
-      // Reset form (optional)
-      // setFormData({
-      //   fullName: '',
-      //   email: '',
-      //   password: '',
-      //   confirmPassword: '',
-      // });
+      setIsLoading(true); // Start loading
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // Backend expects 'name', frontend has 'fullName'
+          body: JSON.stringify({
+            name: formData.fullName,
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Something went wrong");
+        }
+
+        // Success: Store token and redirect
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        setFormMessage({ type: "success", text: "Account created successfully! Redirecting..." });
+        
+        // Wait 1.5 seconds so user sees success message, then redirect
+        setTimeout(() => {
+            navigate("/"); // Redirect to Home
+        }, 1500);
+
+      } catch (error: any) {
+        setFormMessage({
+          type: "error",
+          text: error.message || "Failed to register. Please try again.",
+        });
+      } finally {
+        setIsLoading(false); // Stop loading
+      }
     } else {
-      // Validation failed
-      setFormMessage({
-        type: "error",
-        text: "Please correct the errors in the form.",
-      });
-      console.log("Form validation failed:", errors);
+       // Validation failed
+       setFormMessage({ type: "error", text: "Please correct the errors in the form." });
     }
   };
 
