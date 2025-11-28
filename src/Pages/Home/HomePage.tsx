@@ -18,16 +18,18 @@ const HomePage = () => {
         const activeRide = await apiRequest("/rides/my-active-ride", "GET", null, token);
         
         if (activeRide) {
-          if (user?._id === activeRide.driver) {
-            // User is the driver of an active ride
-            navigate("/driver-track");
-          } else if (user?._id === activeRide.passenger) {
-            // User is a passenger
-            if (activeRide.status === "booked") {
-              setPendingRideId(activeRide._id); // Lock UI, waiting for approval
-            } else if (activeRide.status === "ongoing") {
-              navigate("/passenger-track"); // Move to tracking
-            }
+          // FIX: activeRide.driver is an object (populated), so we must compare ._id
+          const driverId = activeRide.driver._id || activeRide.driver;
+          const passengerId = activeRide.passenger?._id || activeRide.passenger;
+
+          if (user?._id === driverId) {
+            navigate("/driver-track"); // You are the driver -> Go to Driver Page
+          } else if (user?._id === passengerId) {
+             if (activeRide.status === "booked") {
+               setPendingRideId(activeRide._id);
+             } else if (activeRide.status === "ongoing") {
+               navigate("/passenger-track"); // You are the passenger -> Go to Passenger Page
+             }
           }
         }
       } catch (err) {
