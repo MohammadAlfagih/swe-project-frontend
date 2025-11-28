@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FiMail, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-
+import { useAuth } from "../../context/AuthContext";
 // --- InputField Component ---
 // A reusable input field component with icon support
 const InputField = ({
@@ -128,6 +128,7 @@ const PasswordField = ({
 // --- Login Component ---
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   // State for form data
   const [formData, setFormData] = useState({
@@ -184,14 +185,14 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormMessage(null);
 
     if (validateForm()) {
       setIsLoading(true);
       try {
-        const response = await fetch("http://localhost:5000/api/auth/login", {
+        const response = await fetch("http://192.168.56.1:5000/api/auth/login", { // Ensure this IP matches your API
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -205,14 +206,13 @@ const Login = () => {
           throw new Error(data.message || "Login failed");
         }
 
-        // Success: Store token and redirect
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-
+        // --- THE FIX IS HERE ---
+        // Don't set localStorage manually. Use the context function.
         setFormMessage({ type: "success", text: "Login successful! Redirecting..." });
         
+        // Wait briefly for the UI message, then update context
         setTimeout(() => {
-            navigate("/"); // Redirect to Home
+            login(data.token, data.user); // This updates State, Storage, AND Navigates to "/"
         }, 1500);
 
       } catch (error: any) {
