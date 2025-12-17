@@ -56,7 +56,9 @@ const HomePage = () => {
       }
     };
     fetchRides();
-  }, [pendingRideId]); // Refetch if pending status changes
+    const interval = setInterval(fetchRides, 3000);
+    return () => clearInterval(interval)
+  }, [pendingRideId]);
 
   const handleBookRide = async (rideId: string) => {
     try {
