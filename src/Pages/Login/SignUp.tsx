@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FiUser, FiMail, FiLock } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from "react-router-dom";
 
 // --- InputField Component ---
 // A reusable input field component with icon support
@@ -206,18 +205,21 @@ const SignUp = () => {
     if (validateForm()) {
       setIsLoading(true); // Start loading
       try {
-        const response = await fetch("http://localhost:5000/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          "http://localhost:5000/api/auth/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            // Backend expects 'name', frontend has 'fullName'
+            body: JSON.stringify({
+              name: formData.fullName,
+              email: formData.email,
+              password: formData.password,
+            }),
           },
-          // Backend expects 'name', frontend has 'fullName'
-          body: JSON.stringify({
-            name: formData.fullName,
-            email: formData.email,
-            password: formData.password,
-          }),
-        });
+        );
 
         const data = await response.json();
 
@@ -229,13 +231,15 @@ const SignUp = () => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        setFormMessage({ type: "success", text: "Account created successfully! Redirecting..." });
-        
+        setFormMessage({
+          type: "success",
+          text: "Account created successfully! Redirecting...",
+        });
+
         // Wait 1.5 seconds so user sees success message, then redirect
         setTimeout(() => {
-            navigate("/"); // Redirect to Home
+          navigate("/"); // Redirect to Home
         }, 1500);
-
       } catch (error: any) {
         setFormMessage({
           type: "error",
@@ -245,8 +249,11 @@ const SignUp = () => {
         setIsLoading(false); // Stop loading
       }
     } else {
-       // Validation failed
-       setFormMessage({ type: "error", text: "Please correct the errors in the form." });
+      // Validation failed
+      setFormMessage({
+        type: "error",
+        text: "Please correct the errors in the form.",
+      });
     }
   };
 
@@ -327,17 +334,26 @@ const SignUp = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md font-medium hover:bg-blue-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className={`w-full text-white py-2 rounded-md font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+              isLoading
+                ? "bg-blue-300 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
+            }`}
           >
-            Sign Up
+            {isLoading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 
         {/* Footer Links */}
         <div className="text-center mt-6 text-gray-600 text-sm">
-  Already have an account?{" "}
-  <Link to="/login" className="text-blue-500 hover:text-blue-600 font-medium">Log in</Link>
-</div>
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-blue-500 hover:text-blue-600 font-medium"
+          >
+            Log in
+          </Link>
+        </div>
       </div>
     </div>
   );

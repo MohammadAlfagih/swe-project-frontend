@@ -33,10 +33,11 @@ const OfferRide = () => {
       <div className="p-6 flex-1">
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow-sm space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Pick Up Point</label>
+            <label htmlFor="pickup-point" className="block text-sm font-medium text-gray-700 mb-2">Pick Up Point</label>
             <div className="relative">
               <FiMapPin className="absolute top-3 left-3 text-gray-400" />
               <input
+              id ="pickup-point"
                 required
                 type="text"
                 className="w-full pl-10 p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-blue-500"
@@ -47,10 +48,11 @@ const OfferRide = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
+            <label htmlFor="Destination" className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
             <div className="relative">
               <FiMapPin className="absolute top-3 left-3 text-blue-500" />
               <input
+              id="Destination"
                 required
                 type="text"
                 className="w-full pl-10 p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-blue-500"
@@ -61,10 +63,11 @@ const OfferRide = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+            <label htmlFor="Time" className="block text-sm font-medium text-gray-700 mb-2">Time</label>
             <div className="relative">
               <FiClock className="absolute top-3 left-3 text-gray-400" />
               <input
+              id="Time"
                 required
                 type="datetime-local"
                 className="w-full pl-10 p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-blue-500"

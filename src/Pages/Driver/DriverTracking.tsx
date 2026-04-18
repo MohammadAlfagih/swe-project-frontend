@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { apiRequest } from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { FiCheck, FiX, FiUser, FiMapPin, FiNavigation } from "react-icons/fi";
+import { FiCheck, FiX, FiUser } from "react-icons/fi";
 
 const DriverTracking = () => {
   const { user, token } = useAuth(); // Import 'user' here
@@ -13,17 +13,16 @@ const DriverTracking = () => {
     const fetchRide = async () => {
       try {
         const data = await apiRequest("/rides/my-active-ride", "GET", null, token);
-        if (!data) {
-          navigate("/"); 
-        } else {
-          setRide(data);
+        if (data) {
+                    setRide(data);
           
-          // FIX: If I am the passenger, force me to the passenger page
-          // Handle both populated object and raw string ID
           const passengerId = data.passenger?._id || data.passenger;
           if (user?._id === passengerId) {
              navigate("/passenger-track");
           }
+        } else {
+          navigate("/"); 
+
         }
       } catch (err) {
         console.error(err);

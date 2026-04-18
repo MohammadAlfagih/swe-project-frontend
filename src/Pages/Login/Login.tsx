@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { FiMail, FiLock } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 // --- InputField Component ---
 // A reusable input field component with icon support
 const InputField = ({
@@ -128,7 +127,6 @@ const PasswordField = ({
 
 // --- Login Component ---
 const Login = () => {
-  const navigate = useNavigate();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   // State for form data
@@ -267,12 +265,13 @@ const Login = () => {
           />
 
           <div className="text-right -mt-2 mb-4">
-            <a
-              href="#"
+            <button
+            type="button"
+              onClick={() => {console.log("Forget a Passoword")}}
               className="text-sm font-medium text-blue-600 hover:text-blue-500"
             >
               Forgot Password?
-            </a>
+            </button>
           </div>
 
           {formMessage && (
