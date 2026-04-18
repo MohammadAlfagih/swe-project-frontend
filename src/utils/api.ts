@@ -1,5 +1,4 @@
-const API_URL = "http://192.168.56.1:5000/api";
-
+const API_URL = "http://localhost:5000/api";
 export const apiRequest = async (
   endpoint: string,
   method: string = "GET",

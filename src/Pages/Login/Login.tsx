@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FiMail, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 // --- InputField Component ---
 // A reusable input field component with icon support
 const InputField = ({
@@ -185,14 +186,15 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormMessage(null);
 
     if (validateForm()) {
       setIsLoading(true);
       try {
-        const response = await fetch("http://192.168.56.1:5000/api/auth/login", { // Ensure this IP matches your API
+        const response = await fetch("http://localhost:5000/api/auth/login", {
+          // Ensure this IP matches your API
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -208,13 +210,15 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         // --- THE FIX IS HERE ---
         // Don't set localStorage manually. Use the context function.
-        setFormMessage({ type: "success", text: "Login successful! Redirecting..." });
-        
+        setFormMessage({
+          type: "success",
+          text: "Login successful! Redirecting...",
+        });
+
         // Wait briefly for the UI message, then update context
         setTimeout(() => {
-            login(data.token, data.user); // This updates State, Storage, AND Navigates to "/"
+          login(data.token, data.user); // This updates State, Storage, AND Navigates to "/"
         }, 1500);
-
       } catch (error: any) {
         setFormMessage({
           type: "error",
@@ -224,7 +228,10 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         setIsLoading(false);
       }
     } else {
-      setFormMessage({ type: "error", text: "Please correct the errors in the form." });
+      setFormMessage({
+        type: "error",
+        text: "Please correct the errors in the form.",
+      });
     }
   };
 
@@ -233,19 +240,49 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-500 mt-2">Sign in to your account to continue.</p>
+          <p className="text-gray-500 mt-2">
+            Sign in to your account to continue.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-          <InputField id="email" label="Email Address" type="email" placeholder="you@sm.imamu.edu.sa" icon={FiMail} value={formData.email} onChange={handleChange} error={errors.email} />
-          <PasswordField id="password" label="Password" placeholder="Your password" icon={FiLock} value={formData.password} onChange={handleChange} error={errors.password} />
+          <InputField
+            id="email"
+            label="Email Address"
+            type="email"
+            placeholder="you@sm.imamu.edu.sa"
+            icon={FiMail}
+            value={formData.email}
+            onChange={handleChange}
+            error={errors.email}
+          />
+          <PasswordField
+            id="password"
+            label="Password"
+            placeholder="Your password"
+            icon={FiLock}
+            value={formData.password}
+            onChange={handleChange}
+            error={errors.password}
+          />
 
           <div className="text-right -mt-2 mb-4">
-            <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-500">Forgot Password?</a>
+            <a
+              href="#"
+              className="text-sm font-medium text-blue-600 hover:text-blue-500"
+            >
+              Forgot Password?
+            </a>
           </div>
 
           {formMessage && (
-            <div className={`mb-4 p-3 rounded-md text-sm ${formMessage.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+            <div
+              className={`mb-4 p-3 rounded-md text-sm ${
+                formMessage.type === "success"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
               {formMessage.text}
             </div>
           )}
@@ -255,7 +292,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               type="submit"
               disabled={isLoading}
               className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ${
-                isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                isLoading
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
               {isLoading ? "Signing In..." : "Sign In"}
@@ -266,12 +305,16 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{" "}
-            <a href="/signup" className="font-medium text-blue-600 hover:text-blue-500">Sign Up</a>
+            <Link
+              to="/signup"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
+              Sign Up
+            </Link>
           </p>
         </div>
       </div>
     </div>
-    
   );
 };
 
