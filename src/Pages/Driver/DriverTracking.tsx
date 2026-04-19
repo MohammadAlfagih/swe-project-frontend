@@ -40,17 +40,10 @@ const DriverTracking = () => {
 
   const updateStatus = async (status: string) => {
     // Vaidation of ID
-    const isValidMongoId = /^[0-9a-fA-F]$/.test(ride._id);
-
-    if (!isValidMongoId) {
-      console.error("Invalid Ride ID Format");
-      return;
-    }
 
     if (!ride?._id) return;
     try {
-      const safeRideId = encodeURIComponent(ride._id);
-      await apiRequest(`/rides/status/${safeRideId}`, "PUT", { status }, token);
+      await apiRequest(`/rides/status`, "PUT", { rideId:ride._id ,status }, token);
       if (status === "completed") {
         navigate("/");
       }
