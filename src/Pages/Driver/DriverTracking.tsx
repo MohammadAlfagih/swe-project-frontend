@@ -35,9 +35,11 @@ const DriverTracking = () => {
   }, [token, navigate, user?._id]); // Added user._id dependency
 
   const updateStatus = async (status: string) => {
-    if(!ride) return;
+    if(!ride?._id) return;
     try {
-      await apiRequest(`/rides/status/${ride._id}`, "PUT", { status }, token);
+
+      const safeRideId = encodeURI(ride._id)
+      await apiRequest(`/rides/status/${safeRideId}`, "PUT", { status }, token);
       if (status === "completed") {
         navigate("/"); 
       }
