@@ -38,7 +38,7 @@ const DriverTracking = () => {
     if(!ride?._id) return;
     try {
 
-      const safeRideId = encodeURI(ride._id)
+      const safeRideId = encodeURIComponent(ride._id)
       await apiRequest(`/rides/status/${safeRideId}`, "PUT", { status }, token);
       if (status === "completed") {
         navigate("/"); 
